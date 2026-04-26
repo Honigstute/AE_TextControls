@@ -28,6 +28,7 @@ It does not install or remove the ZXP/CEP panel.
 - no admin rights required
 - no Python
 - no `openai-whisper`
+- the Windows local engine payload is downloaded during Install/Repair and checksum-verified
 - FFmpeg is downloaded during Install/Repair and checksum-verified
 - the Whisper model is downloaded during Install/Repair and checksum-verified
 - unsigned-first release; SmartScreen warnings are expected until signing and reputation are handled
@@ -40,8 +41,14 @@ The intended build path is GitHub Actions on `windows-latest`:
 .github/workflows/windows-dependencies.yml
 ```
 
-That workflow builds `whisper-cli.exe`, publishes the helper, embeds both in the
-portable manager, and uploads `TextControlsDependencies-win-x64.exe`.
+That workflow builds `whisper-cli.exe`, publishes the helper, packages both into
+`TextControlsLocalEngine-win-x64.zip`, and uploads the small public bootstrapper
+`TextControlsDependencies-win-x64.exe`.
+
+To keep the public EXE below small upload limits, the bootstrapper does not
+embed the local engine payload. Publish `TextControlsLocalEngine-win-x64.zip`
+as a GitHub release asset at the URL configured by the workflow before asking
+users to run Install/Repair.
 
 Local Windows build:
 

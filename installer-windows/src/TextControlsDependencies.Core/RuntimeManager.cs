@@ -79,7 +79,7 @@ public sealed class RuntimeManager
         Directory.CreateDirectory(RuntimeConstants.NoticesDirectory);
 
         progress(new RuntimeProgress(0.15, "Installing local engine"));
-        await ExtractPayloadDirectoryAsync("payload/bin/", RuntimeConstants.BinDirectory).ConfigureAwait(false);
+        await DownloadAndExtractLocalEngineAsync(RuntimeConstants.BinDirectory).ConfigureAwait(false);
         log("Local engine files installed");
 
         progress(new RuntimeProgress(0.35, "Checking Whisper model"));
@@ -237,6 +237,35 @@ public sealed class RuntimeManager
             }
 
             MoveReplacing(ffmpegSource, destinationPath);
+        }
+        finally
+        {
+            TryDeleteFile(zipPath);
+            TryDeleteDirectory(extractRoot);
+        }
+    }
+
+    private async Task DownloadAndExtractLocalEngineAsync(string destinationDirectory)
+    {
+        if (!RuntimeConstants.HasLocalEngineDownload)
+        {
+            throw new InvalidOperationException("Windows local engine download URL was not configured in this build.");
+        }
+
+        var zipPath = Path.Combine(Path.GetTempPath(), "text-controls-local-engine-" + Guid.NewGuid().ToString("N") + ".zip");
+        var extractRoot = Path.Combine(Path.GetTempPath(), "text-controls-local-engine-" + Guid.NewGuid().ToString("N"));
+
+        try
+        {
+            await DownloadVerifiedFileAsync(RuntimeConstants.LocalEngineDownloadUrl, zipPath, RuntimeConstants.LocalEngineZipSha256).ConfigureAwait(false);
+            ZipFile.ExtractToDirectory(zipPath, extractRoot);
+
+            Directory.CreateDirectory(destinationDirectory);
+            foreach (var filePath in Directory.EnumerateFiles(extractRoot, "*", SearchOption.AllDirectories))
+            {
+                var relativePath = Path.GetRelativePath(extractRoot, filePath);
+                MoveReplacing(filePath, Path.Combine(destinationDirectory, relativePath));
+            }
         }
         finally
         {

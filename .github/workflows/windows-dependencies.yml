@@ -38,11 +38,29 @@ jobs:
       - name: Publish helper
         shell: pwsh
         run: |
-          dotnet publish installer-windows\src\tc-whisper-helper\tc-whisper-helper.csproj -c Release -r win-x64 --self-contained true -o installer-windows\payload\bin
+          dotnet publish installer-windows\src\tc-whisper-helper\tc-whisper-helper.csproj -c Release -r win-x64 --self-contained false -o installer-windows\payload\bin
 
       - name: Test
         shell: pwsh
         run: dotnet test installer-windows\TextControlsDependencies.sln -c Release
+
+      - name: Package local engine payload
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force installer-windows\dist | Out-Null
+          Compress-Archive -Path installer-windows\payload\bin\* -DestinationPath installer-windows\dist\TextControlsLocalEngine-win-x64.zip -Force
+          $hash = (Get-FileHash installer-windows\dist\TextControlsLocalEngine-win-x64.zip -Algorithm SHA256).Hash.ToLowerInvariant()
+          "LOCAL_ENGINE_SHA256=$hash" >> $env:GITHUB_ENV
+          "LOCAL_ENGINE_URL=https://github.com/${{ github.repository }}/releases/download/windows-local-engine-v1.0.24/TextControlsLocalEngine-win-x64.zip" >> $env:GITHUB_ENV
+
+      - name: Configure bootstrapper download constants
+        shell: pwsh
+        run: |
+          $file = "installer-windows\src\TextControlsDependencies.Core\RuntimeConstants.cs"
+          (Get-Content $file) `
+            -replace "__WINDOWS_LOCAL_ENGINE_URL__", $env:LOCAL_ENGINE_URL `
+            -replace "__WINDOWS_LOCAL_ENGINE_SHA256__", $env:LOCAL_ENGINE_SHA256 |
+            Set-Content $file
 
       - name: Publish portable dependency manager
         shell: pwsh
@@ -69,6 +87,7 @@ jobs:
         shell: pwsh
         run: |
           Get-FileHash installer-windows\dist\TextControlsDependencies-win-x64.exe -Algorithm SHA256 | Format-List | Out-File installer-windows\dist\TextControlsDependencies-win-x64.sha256.txt
+          Get-FileHash installer-windows\dist\TextControlsLocalEngine-win-x64.zip -Algorithm SHA256 | Format-List | Out-File installer-windows\dist\TextControlsLocalEngine-win-x64.sha256.txt
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
@@ -77,3 +96,11 @@ jobs:
           path: |
             installer-windows/dist/TextControlsDependencies-win-x64.exe
             installer-windows/dist/TextControlsDependencies-win-x64.sha256.txt
+
+      - name: Upload local engine artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: TextControlsLocalEngine-win-x64
+          path: |
+            installer-windows/dist/TextControlsLocalEngine-win-x64.zip
+            installer-windows/dist/TextControlsLocalEngine-win-x64.sha256.txt

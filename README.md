@@ -20,6 +20,11 @@ named `TextControlsDependencies-win-x64` and place
 `TextControlsDependencies-win-x64.exe` into the public package before uploading
 the final Windows-ready ZIP.
 
+The workflow also produces `TextControlsLocalEngine-win-x64.zip`. Publish that
+zip as a GitHub release asset named `windows-local-engine-v1.0.24` before
+shipping the Windows dependency manager, because the small EXE downloads that
+payload during Install/Repair.
+
 ## Installation
 
 Text Controls is a ZXP extension and can be installed using a ZXP installer.
