@@ -1,0 +1,36 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TextControlsDependencies.Core", "src\TextControlsDependencies.Core\TextControlsDependencies.Core.csproj", "{EB34B247-4B1B-4D33-A2D3-9A85179F0193}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TextControlsDependencies.App", "src\TextControlsDependencies.App\TextControlsDependencies.App.csproj", "{C61B64EB-C3D3-4733-90FA-A1B23C9DC972}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "tc-whisper-helper", "src\tc-whisper-helper\tc-whisper-helper.csproj", "{0C5D404C-D2C3-4E2D-BEC3-B4673DB83079}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TextControlsDependencies.Tests", "tests\TextControlsDependencies.Tests\TextControlsDependencies.Tests.csproj", "{F718F59D-A740-4E73-BF6E-D88C4F90E0B2}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{EB34B247-4B1B-4D33-A2D3-9A85179F0193}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EB34B247-4B1B-4D33-A2D3-9A85179F0193}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EB34B247-4B1B-4D33-A2D3-9A85179F0193}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EB34B247-4B1B-4D33-A2D3-9A85179F0193}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C61B64EB-C3D3-4733-90FA-A1B23C9DC972}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C61B64EB-C3D3-4733-90FA-A1B23C9DC972}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C61B64EB-C3D3-4733-90FA-A1B23C9DC972}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C61B64EB-C3D3-4733-90FA-A1B23C9DC972}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0C5D404C-D2C3-4E2D-BEC3-B4673DB83079}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0C5D404C-D2C3-4E2D-BEC3-B4673DB83079}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0C5D404C-D2C3-4E2D-BEC3-B4673DB83079}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0C5D404C-D2C3-4E2D-BEC3-B4673DB83079}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F718F59D-A740-4E73-BF6E-D88C4F90E0B2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F718F59D-A740-4E73-BF6E-D88C4F90E0B2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F718F59D-A740-4E73-BF6E-D88C4F90E0B2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F718F59D-A740-4E73-BF6E-D88C4F90E0B2}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal

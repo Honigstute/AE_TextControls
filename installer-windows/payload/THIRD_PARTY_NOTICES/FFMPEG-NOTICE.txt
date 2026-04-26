@@ -1,0 +1,7 @@
+FFmpeg
+https://ffmpeg.org/
+
+The Windows dependency manager does not bundle FFmpeg directly. During
+Install/Repair it downloads a pinned LGPL Windows x64 FFmpeg build from
+BtbN/FFmpeg-Builds and verifies the archive SHA-256 before extracting
+ffmpeg.exe into the Text Controls local runtime.

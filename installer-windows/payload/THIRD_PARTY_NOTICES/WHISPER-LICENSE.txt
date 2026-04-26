@@ -1,0 +1,5 @@
+Whisper model files
+https://github.com/openai/whisper
+
+The default ggml-base.bin model is downloaded during Install/Repair from the
+whisper.cpp model mirror and is based on OpenAI Whisper model weights.
