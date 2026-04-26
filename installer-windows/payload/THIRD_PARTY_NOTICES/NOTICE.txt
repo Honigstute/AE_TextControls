@@ -1,0 +1,7 @@
+Text Controls Windows local runtime bundles a helper executable and whisper.cpp
+command line executable in the dependency manager payload. FFmpeg and the
+default Whisper model are downloaded during Install/Repair and checksum
+verified before they are installed into the user-scoped runtime folder.
+
+Runtime folder:
+%LOCALAPPDATA%\Text Controls Local\

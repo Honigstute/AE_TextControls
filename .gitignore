@@ -1,0 +1,8 @@
+.DS_Store
+installer-windows/**/bin/
+installer-windows/**/obj/
+installer-windows/dist/
+installer-windows/payload/bin/
+*.p12
+*.zxp
+release/

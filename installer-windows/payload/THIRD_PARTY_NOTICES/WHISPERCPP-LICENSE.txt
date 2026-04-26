@@ -1,0 +1,5 @@
+whisper.cpp
+https://github.com/ggml-org/whisper.cpp
+
+whisper.cpp is distributed under the MIT license. Include the upstream license
+text with public Windows dependency-manager releases.

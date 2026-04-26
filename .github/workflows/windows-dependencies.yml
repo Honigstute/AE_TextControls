@@ -1,0 +1,79 @@
+name: Windows Dependencies
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - "installer-windows/**"
+      - ".github/workflows/windows-dependencies.yml"
+
+jobs:
+  build:
+    runs-on: windows-latest
+    env:
+      WINDOWS_SIGNING_PFX_BASE64: ${{ secrets.WINDOWS_SIGNING_PFX_BASE64 }}
+      WINDOWS_SIGNING_PFX_PASSWORD: ${{ secrets.WINDOWS_SIGNING_PFX_PASSWORD }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "8.0.x"
+
+      - name: Build whisper.cpp CLI
+        shell: pwsh
+        run: |
+          git clone --depth 1 --branch v1.7.5 https://github.com/ggml-org/whisper.cpp "$env:RUNNER_TEMP\whisper.cpp"
+          cmake -S "$env:RUNNER_TEMP\whisper.cpp" -B "$env:RUNNER_TEMP\whisper-build" -A x64 -DGGML_NATIVE=OFF -DWHISPER_BUILD_TESTS=OFF -DWHISPER_BUILD_SERVER=OFF
+          cmake --build "$env:RUNNER_TEMP\whisper-build" --config Release --target whisper-cli
+          New-Item -ItemType Directory -Force installer-windows\payload\bin | Out-Null
+          $candidate = Get-ChildItem "$env:RUNNER_TEMP\whisper-build" -Recurse -Filter whisper-cli.exe | Select-Object -First 1
+          if (-not $candidate) { throw "whisper-cli.exe was not produced" }
+          Copy-Item $candidate.FullName installer-windows\payload\bin\whisper-cli.exe -Force
+          Get-ChildItem $candidate.DirectoryName -Filter *.dll -ErrorAction SilentlyContinue | Copy-Item -Destination installer-windows\payload\bin -Force
+
+      - name: Publish helper
+        shell: pwsh
+        run: |
+          dotnet publish installer-windows\src\tc-whisper-helper\tc-whisper-helper.csproj -c Release -r win-x64 --self-contained true -o installer-windows\payload\bin
+
+      - name: Test
+        shell: pwsh
+        run: dotnet test installer-windows\TextControlsDependencies.sln -c Release
+
+      - name: Publish portable dependency manager
+        shell: pwsh
+        run: |
+          dotnet publish installer-windows\src\TextControlsDependencies.App\TextControlsDependencies.App.csproj -c Release -r win-x64 --self-contained true -o installer-windows\dist
+          Copy-Item installer-windows\dist\TextControlsDependencies.exe installer-windows\dist\TextControlsDependencies-win-x64.exe -Force
+
+      - name: Optional Authenticode signing
+        if: ${{ env.WINDOWS_SIGNING_PFX_BASE64 != '' && env.WINDOWS_SIGNING_PFX_PASSWORD != '' }}
+        shell: pwsh
+        run: |
+          $pfxPath = "$env:RUNNER_TEMP\textcontrols-signing.pfx"
+          [IO.File]::WriteAllBytes($pfxPath, [Convert]::FromBase64String($env:WINDOWS_SIGNING_PFX_BASE64))
+          $signtool = (Get-ChildItem "${env:ProgramFiles(x86)}\Windows Kits\10\bin" -Recurse -Filter signtool.exe | Where-Object FullName -Match "\\x64\\signtool.exe$" | Select-Object -First 1).FullName
+          & $signtool sign /fd SHA256 /tr http://timestamp.digicert.com /td SHA256 /f $pfxPath /p $env:WINDOWS_SIGNING_PFX_PASSWORD installer-windows\dist\TextControlsDependencies-win-x64.exe
+
+      - name: Smoke helper check
+        shell: pwsh
+        run: |
+          installer-windows\payload\bin\tc-whisper-helper.exe check --json
+          installer-windows\payload\bin\whisper-cli.exe --help
+
+      - name: Checksums
+        shell: pwsh
+        run: |
+          Get-FileHash installer-windows\dist\TextControlsDependencies-win-x64.exe -Algorithm SHA256 | Format-List | Out-File installer-windows\dist\TextControlsDependencies-win-x64.sha256.txt
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: TextControlsDependencies-win-x64
+          path: |
+            installer-windows/dist/TextControlsDependencies-win-x64.exe
+            installer-windows/dist/TextControlsDependencies-win-x64.sha256.txt
